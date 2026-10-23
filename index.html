@@ -103,36 +103,53 @@
     place-items: center;
     aspect-ratio: 1;
     max-width: 100%;
-    background-color: var(--tile);
-    background-image:
-      radial-gradient(ellipse 3px 4px at 24% 34%, var(--seed) 85%, transparent),
-      radial-gradient(ellipse 3px 4px at 77% 30%, var(--seed) 85%, transparent),
-      radial-gradient(ellipse 3px 4px at 18% 64%, var(--seed) 85%, transparent),
-      radial-gradient(ellipse 3px 4px at 82% 62%, var(--seed) 85%, transparent),
-      radial-gradient(ellipse 3px 4px at 50% 87%, var(--seed) 85%, transparent);
     color: var(--tile-ink);
-    border-radius: 45% 45% 40% 40% / 42% 42% 48% 48%;
     text-decoration: none;
     font-family: var(--font-display);
     font-size: clamp(1.1rem, min(5.6vw, 4.2dvh), 1.9rem);
     font-variant-numeric: tabular-nums;
-    box-shadow: 0 4px 0 var(--tile-shadow);
-    transition: background .15s, transform .1s;
+    padding-bottom: 12%;
+    border-radius: 30%;
+    transition: transform .1s;
   }
-  .grid a::before {
+  .grid .num { position: relative; z-index: 1; text-shadow: 0 1px 0 var(--tile-shadow); }
+  /* the strawberry: shape layer carries the drop shadow, body is masked into a berry outline */
+  .grid .shape {
+    position: absolute;
+    inset: 0;
+    filter: drop-shadow(0 4px 0 var(--tile-shadow));
+    transition: filter .1s;
+  }
+  .grid .body {
+    position: absolute;
+    inset: 0;
+    background-color: var(--tile);
+    background-image:
+      radial-gradient(ellipse 3px 4px at 18% 36%, var(--seed) 85%, transparent),
+      radial-gradient(ellipse 3px 4px at 82% 36%, var(--seed) 85%, transparent),
+      radial-gradient(ellipse 3px 4px at 28% 60%, var(--seed) 85%, transparent),
+      radial-gradient(ellipse 3px 4px at 72% 60%, var(--seed) 85%, transparent),
+      radial-gradient(ellipse 3px 4px at 50% 84%, var(--seed) 85%, transparent);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 13C74 6 98 13 97 37C96 59 73 86 50 98C27 86 4 59 3 37C2 13 26 6 50 13Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 13C74 6 98 13 97 37C96 59 73 86 50 98C27 86 4 59 3 37C2 13 26 6 50 13Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+    transition: background-color .15s;
+  }
+  .grid .shape::before {
     content: "";
     position: absolute;
-    top: -6%;
+    top: 2%;
     left: 50%;
-    width: 34%;
-    height: 18%;
+    width: 38%;
+    height: 17%;
     transform: translateX(-50%);
     background: var(--leaf);
     border-radius: 50% 50% 40% 40%;
     clip-path: polygon(0 0, 25% 60%, 50% 0, 75% 60%, 100% 0, 100% 100%, 0 100%);
+    z-index: 1;
   }
-  .grid a:hover { background-color: var(--tile-hover); }
-  .grid a:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--tile-shadow); }
+  .grid a:hover .body { background-color: var(--tile-hover); }
+  .grid a:active { transform: translateY(3px); }
+  .grid a:active .shape { filter: drop-shadow(0 1px 0 var(--tile-shadow)); }
   .grid a:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
   footer {
     display: flex; align-items: center; justify-content: center; gap: 6px;
@@ -140,7 +157,7 @@
   }
   footer svg { width: 18px; height: auto; }
   @media (prefers-reduced-motion: reduce) {
-    .grid a { transition: none; }
+    .grid a, .grid .shape, .grid .body { transition: none; }
     .berry-big { animation: none; }
   }
 </style>
@@ -215,7 +232,8 @@
     a.href = base + path;
     a.target = "_blank";
     a.rel = "noopener";
-    a.textContent = num;
+    a.innerHTML = '<span class="shape" aria-hidden="true"><i class="body"></i></span><span class="num"></span>';
+    a.querySelector(".num").textContent = num;
     a.setAttribute("aria-label", num + "번 독서기록 하러 가기");
     li.appendChild(a);
     grid.appendChild(li);
